@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <meta http-equiv="refresh" content="0; url={{ site.data.shortlinks | where: 'slug', page.slug | first | dig: 'url' }}">
+  </head>
+  <body>
+    <p>Redirecting to <a href="{{ site.data.shortlinks | where: 'slug', page.slug | first | dig: 'url' }}">link tujuan</a>...</p>
+  </body>
+</html>
