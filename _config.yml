@@ -1,0 +1,6 @@
+title: Shortlink
+baseurl: ""
+url: "https://enzl-bit.github.io/shortlink-jekyll"
+permalink: /:slug/
+plugins:
+  - jekyll-redirect-from
