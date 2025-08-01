@@ -2,3 +2,446 @@
 layout: redirect
 slug: gh
 ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+        }
+        .result-box {
+            transition: all 0.3s ease;
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        #copyBtn:hover .copy-icon {
+            transform: scale(1.1);
+        }
+        .animate-pulse {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-link text-2xl"></i>
+                    <h1 class="text-2xl font-bold">ShortLink</h1>
+                </div>
+                <nav class="hidden md:block">
+                    <ul class="flex space-x-6">
+                        <li><a href="#" class="hover:underline">Home</a></li>
+                        <li><a href="#tools" class="hover:underline">Tools</a></li>
+                        <li><a href="#" class="hover:underline">Analytics</a></li>
+                        <li><a href="#" class="hover:underline">Pricing</a></li>
+                    </ul>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <button class="px-4 py-2 rounded-lg bg-white text-purple-600 font-semibold hover:bg-gray-100 transition">Login</button>
+                    <button class="md:hidden text-2xl" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden bg-white shadow-lg absolute w-full z-10">
+        <ul class="py-2">
+            <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Home</a></li>
+            <li><a href="#tools" class="block px-4 py-2 hover:bg-gray-100">Tools</a></li>
+            <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Analytics</a></li>
+            <li><a href="#" class="block px-4 py-2 hover:bg-gray-100">Pricing</a></li>
+        </ul>
+    </div>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Hero Section -->
+        <section class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Shorten Your Links</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Create short, memorable links and track their performance with our powerful analytics tools.</p>
+        </section>
+
+        <!-- URL Shortener Form -->
+        <section class="max-w-3xl mx-auto mb-16">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <form id="urlForm" class="space-y-4">
+                    <div>
+                        <label for="originalUrl" class="block text-sm font-medium text-gray-700 mb-1">Enter your long URL</label>
+                        <input type="url" id="originalUrl" required 
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                            placeholder="https://example.com/very-long-url">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="customAlias" class="block text-sm font-medium text-gray-700 mb-1">Custom alias (optional)</label>
+                            <div class="flex">
+                                <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                    shortlink.com/
+                                </span>
+                                <input type="text" id="customAlias" 
+                                    class="flex-1 min-w-0 block w-full px-3 py-2 rounded-r-lg border border-gray-300 focus:ring-purple-500 focus:border-purple-500"
+                                    placeholder="my-link">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="expiration" class="block text-sm font-medium text-gray-700 mb-1">Expiration</label>
+                            <select id="expiration" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-purple-500 focus:border-purple-500">
+                                <option value="never">Never</option>
+                                <option value="1day">1 Day</option>
+                                <option value="1week">1 Week</option>
+                                <option value="1month">1 Month</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full gradient-bg text-white py-3 px-6 rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center">
+                        <i class="fas fa-link mr-2"></i> Shorten URL
+                    </button>
+                </form>
+
+                <!-- Result Section -->
+                <div id="resultContainer" class="hidden mt-6 result-box">
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-purple-800 mb-1">Your shortened URL:</p>
+                                <div class="flex items-center">
+                                    <input id="shortenedUrl" type="text" readonly 
+                                        class="flex-1 bg-white px-3 py-2 rounded-l-lg border border-gray-300 text-purple-600 font-medium truncate">
+                                    <button id="copyBtn" class="bg-purple-600 text-white px-4 py-2 rounded-r-lg hover:bg-purple-700 transition">
+                                        <span class="copy-icon"><i class="fas fa-copy"></i></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <button id="qrBtn" class="bg-white text-purple-600 p-2 rounded-lg border border-purple-200 hover:bg-purple-50 transition">
+                                    <i class="fas fa-qrcode"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <a href="#" class="text-sm text-purple-600 hover:underline flex items-center">
+                                <i class="fas fa-chart-line mr-1"></i> View Analytics
+                            </a>
+                            <a href="#" class="text-sm text-purple-600 hover:underline flex items-center">
+                                <i class="fas fa-edit mr-1"></i> Edit Link
+                            </a>
+                            <a href="#" class="text-sm text-purple-600 hover:underline flex items-center">
+                                <i class="fas fa-share-alt mr-1"></i> Share
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tools Section -->
+        <section id="tools" class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Powerful Tools</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Tool 1 -->
+                <div class="tool-card bg-white rounded-xl shadow-md p-6 transition cursor-pointer">
+                    <div class="text-purple-600 mb-4">
+                        <i class="fas fa-chart-pie text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Link Analytics</h3>
+                    <p class="text-gray-600">Track clicks, geographic locations, and referral sources for your shortened links.</p>
+                </div>
+                
+                <!-- Tool 2 -->
+                <div class="tool-card bg-white rounded-xl shadow-md p-6 transition cursor-pointer">
+                    <div class="text-purple-600 mb-4">
+                        <i class="fas fa-qrcode text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">QR Code Generator</h3>
+                    <p class="text-gray-600">Create QR codes for your links to use in print materials or digital campaigns.</p>
+                </div>
+                
+                <!-- Tool 3 -->
+                <div class="tool-card bg-white rounded-xl shadow-md p-6 transition cursor-pointer">
+                    <div class="text-purple-600 mb-4">
+                        <i class="fas fa-users text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Team Collaboration</h3>
+                    <p class="text-gray-600">Share and manage links with your team members with different permission levels.</p>
+                </div>
+                
+                <!-- Tool 4 -->
+                <div class="tool-card bg-white rounded-xl shadow-md p-6 transition cursor-pointer">
+                    <div class="text-purple-600 mb-4">
+                        <i class="fas fa-lock text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Password Protection</h3>
+                    <p class="text-gray-600">Add an extra layer of security by requiring a password to access your links.</p>
+                </div>
+                
+                <!-- Tool 5 -->
+                <div class="tool-card bg-white rounded-xl shadow-md p-6 transition cursor-pointer">
+                    <div class="text-purple-600 mb-4">
+                        <i class="fas fa-calendar-alt text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Scheduled Links</h3>
+                    <p class="text-gray-600">Set your links to become active or expire at specific dates and times.</p>
+                </div>
+                
+                <!-- Tool 6 -->
+                <div class="tool-card bg-white rounded-xl shadow-md p-6 transition cursor-pointer">
+                    <div class="text-purple-600 mb-4">
+                        <i class="fas fa-tags text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Link Tagging</h3>
+                    <p class="text-gray-600">Organize your links with custom tags for easy filtering and management.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Why Choose ShortLink?</h2>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <div class="p-8 lg:p-12">
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-purple-100 rounded-lg p-2">
+                                    <i class="fas fa-bolt text-purple-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold text-gray-800">Lightning Fast</h3>
+                                    <p class="mt-1 text-gray-600">Our links redirect instantly, ensuring your users have the best experience.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-purple-100 rounded-lg p-2">
+                                    <i class="fas fa-shield-alt text-purple-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold text-gray-800">Secure & Reliable</h3>
+                                    <p class="mt-1 text-gray-600">All links are protected with HTTPS and monitored 24/7 for maximum uptime.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-purple-100 rounded-lg p-2">
+                                    <i class="fas fa-infinity text-purple-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold text-gray-800">Unlimited Links</h3>
+                                    <p class="mt-1 text-gray-600">Create as many links as you need without any restrictions.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-8 lg:p-12 flex items-center justify-center">
+                        <div class="relative w-full max-w-md">
+                            <div class="absolute -top-6 -left-6 w-32 h-32 bg-purple-200 rounded-full opacity-50"></div>
+                            <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-purple-100 rounded-full opacity-50"></div>
+                            <div class="relative bg-white p-6 rounded-xl shadow-md">
+                                <div class="flex items-center mb-4">
+                                    <div class="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                </div>
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <div class="text-sm font-mono text-gray-800">shortlink.com/example</div>
+                                </div>
+                                <div class="bg-purple-50 p-4 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Total Clicks</span>
+                                        <span class="text-sm font-semibold text-purple-600">1,248</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: 75%"></div>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-4 mt-4">
+                                        <div>
+                                            <div class="text-xs text-gray-500">Today</div>
+                                            <div class="font-semibold">42</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-gray-500">This Week</div>
+                                            <div class="font-semibold">287</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs text-gray-500">This Month</div>
+                                            <div class="font-semibold">1,248</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 max-w-sm w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-gray-800">QR Code</h3>
+                <button id="closeQrModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="bg-gray-100 p-4 rounded-lg flex justify-center mb-4">
+                <div class="w-48 h-48 bg-white p-2 flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="animate-pulse text-gray-500 mb-2">
+                            <i class="fas fa-qrcode text-6xl"></i>
+                        </div>
+                        <p class="text-sm text-gray-500">QR Code Preview</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <select class="flex-1 px-3 py-2 border border-gray-300 rounded-lg">
+                    <option>300x300</option>
+                    <option>500x500</option>
+                    <option>1000x1000</option>
+                </select>
+                <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                    Download
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">ShortLink</h3>
+                    <p class="text-gray-400">The simplest way to shorten your URLs and track their performance.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Product</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Features</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Pricing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">API</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Integrations</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Community</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Status</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">About</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Privacy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">© 2023 ShortLink. All rights reserved.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        });
+
+        // URL Shortener Form Submission
+        document.getElementById('urlForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const originalUrl = document.getElementById('originalUrl').value;
+            const customAlias = document.getElementById('customAlias').value;
+            
+            // Simulate API call with loading state
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+            submitBtn.disabled = true;
+            
+            // Simulate API delay
+            setTimeout(() => {
+                // Generate a random short URL
+                const randomString = Math.random().toString(36).substring(2, 8);
+                const shortUrl = `https://shortlink.com/${customAlias || randomString}`;
+                
+                // Display result
+                document.getElementById('shortenedUrl').value = shortUrl;
+                document.getElementById('resultContainer').classList.remove('hidden');
+                
+                // Reset button
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }, 1500);
+        });
+
+        // Copy to clipboard
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const shortUrl = document.getElementById('shortenedUrl');
+            shortUrl.select();
+            document.execCommand('copy');
+            
+            // Change icon temporarily to indicate success
+            const icon = this.querySelector('.copy-icon');
+            icon.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => {
+                icon.innerHTML = '<i class="fas fa-copy"></i>';
+            }, 2000);
+        });
+
+        // QR Code Modal
+        document.getElementById('qrBtn').addEventListener('click', function() {
+            document.getElementById('qrModal').classList.remove('hidden');
+        });
+        
+        document.getElementById('closeQrModal').addEventListener('click', function() {
+            document.getElementById('qrModal').classList.add('hidden');
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('qrModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
